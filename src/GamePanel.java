@@ -234,17 +234,6 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void gameOver() {
-        int option = JOptionPane.showOptionDialog(this, "Gra zakończona! Chcesz zagrać ponownie?", "Game Over",
-                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Tak", "Nie"}, "Tak");
-
-        if (option == JOptionPane.YES_OPTION) {
-            main.startGame();
-        } else {
-            main.returnToMainMenu();
-        }
-    }
-
     private void drawLives(Graphics g) {
         Image liveHeart = new ImageIcon(getClass().getResource("/Live.png")).getImage();
         Image noLiveHeart = new ImageIcon(getClass().getResource("/NoLive.png")).getImage();
