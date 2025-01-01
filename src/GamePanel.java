@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import javax.swing.*;
 
@@ -11,7 +13,12 @@ public class GamePanel extends JPanel {
     private Image backgroundImage;
     private Main main;
     private boolean foodInitialized = false;
-    private int healthyFoodCount = 0;  // Licznik zdrowego jedzenia
+    private int healthyFoodCount = 0;
+
+    private String foodDescription = "";
+    private Timer descriptionTimer;
+    private Map<String, String> foodDescriptions;
+    private Map<String, String> junkFoodDescriptions;
 
     public GamePanel(Main main) {
         this.main = main;
@@ -22,28 +29,59 @@ public class GamePanel extends JPanel {
         playerImage = new ImageIcon(getClass().getResource("/potrac.png")).getImage();
         updateBackgroundForLevel(main.getLevel());
 
-        // Dodanie listenera do inicjalizacji jedzenia po ustaleniu wymiarów panelu
+        // Initialize food and junk food descriptions
+        initializeFoodDescriptions();
+        initializeJunkFoodDescriptions();
+
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 if (!foodInitialized) {
-                    spawnFood(); // Rozmieść jedzenie na początku
+                    spawnFood();
                     foodInitialized = true;
                 }
             }
         });
     }
 
+    private void initializeFoodDescriptions() {
+        foodDescriptions = new HashMap<>();
+        foodDescriptions.put("Food1.png", "Banany są bogate w potas, witaminę B6 i błonnik, co wspiera serce, mięśnie i trawienie, czyniąc je zdrową i energetyczną przekąską.");
+        foodDescriptions.put("Food2.png", "Borówki są pełne przeciwutleniaczy, witaminy C i błonnika, wspierając odporność, zdrowie serca i układ trawienny, a przy tym są niskokaloryczne.");
+        foodDescriptions.put("Food3.png", "Czereśnie są bogate w antyoksydanty, witaminę C i melatoninę, co wspiera odporność, zdrowy sen i redukcję stanów zapalnych.");
+        foodDescriptions.put("Food4.png", "Czerwone winogrona zawierają resweratrol, witaminę C i błonnik, wspierając serce, odporność i zdrowe trawienie.");
+        foodDescriptions.put("Food5.png", "Białe winogrona dostarczają witamin C i K oraz antyoksydantów, wspomagając odporność, zdrowe kości i ogólną witalność.");
+        foodDescriptions.put("Food6.png", "Limonki są pełne witaminy C i związków alkalizujących, wzmacniając odporność i wspierając detoksykację organizmu.");
+        foodDescriptions.put("Food7.png", "Pomarańcze są źródłem witaminy C, błonnika i przeciwutleniaczy, wspierając odporność, zdrowie skóry i trawienie.");
+        foodDescriptions.put("Food8.png", "Mandarynki dostarczają witaminy C, flawonoidów i błonnika, wspomagając odporność, zdrową skórę i metabolizm.");
+        foodDescriptions.put("Food9.png", "Jabłka są bogate w błonnik, witaminę C i przeciwutleniacze, wspierając zdrowie serca, trawienie i kontrolę poziomu cukru.");
+        foodDescriptions.put("Food10.png", "Arbuz zawiera dużo wody, likopen i witaminę A, nawadniając organizm, wspierając zdrowie skóry i ochronę przed stresem oksydacyjnym.");
+        foodDescriptions.put("Food11.png", "Papryka jest pełna witaminy C, witaminy A i błonnika, wspierając odporność, zdrową skórę i metabolizm.");
+        foodDescriptions.put("Food12.png", "Marchewki są bogate w beta-karoten, witaminę A i błonnik, wspierając zdrowy wzrok, skórę i trawienie.");
+        foodDescriptions.put("Food13.png", "Bakłażany zawierają błonnik, antyoksydanty i niską ilość kalorii, wspierając zdrowie serca i kontrolę wagi.");
+        foodDescriptions.put("Food14.png", "Ziemniaki dostarczają potasu, witaminy C i skrobi, wspierając zdrowie mięśni, odporność i dostarczając energii.");
+        foodDescriptions.put("Food15.png", "Pomidory są bogate w likopen, witaminę C i potas, wspierając zdrowie serca, skóry i odporność.");
+    }
+
+    private void initializeJunkFoodDescriptions() {
+        junkFoodDescriptions = new HashMap<>();
+        junkFoodDescriptions.put("JunkFood1.png", "Hamburgery często zawierają dużo nasyconych tłuszczów, soli i przetworzonych dodatków, co może prowadzić do problemów z sercem i wagą.");
+        junkFoodDescriptions.put("JunkFood2.png", "Frytki są bogate w tłuszcze trans, sól i kalorie, co sprzyja otyłości i zwiększa ryzyko chorób serca.");
+        junkFoodDescriptions.put("JunkFood3.png", "Pepsi zawiera dużo cukru i sztucznych dodatków, co może powodować próchnicę, nadwagę i skoki poziomu cukru we krwi.");
+        junkFoodDescriptions.put("JunkFood4.png", "Sprite jest pełen cukru i pustych kalorii, co zwiększa ryzyko otyłości i problemów metabolicznych.");
+    }
+
     public void updateBackgroundForLevel(int level) {
         switch (level) {
             case 1 -> backgroundImage = new ImageIcon(getClass().getResource("/Tlo1.png")).getImage();
+            case 2 -> backgroundImage = new ImageIcon(getClass().getResource("/Tlo2.png")).getImage();
+            case 3 -> backgroundImage = new ImageIcon(getClass().getResource("/Tlo3.png")).getImage();
             default -> backgroundImage = null;
         }
 
-        // Opóźnione rozmieszczenie jedzenia
         SwingUtilities.invokeLater(() -> {
             if (foodInitialized) {
-                spawnFood(); // Rozmieść jedzenie
+                spawnFood();
             }
         });
 
@@ -66,15 +104,13 @@ public class GamePanel extends JPanel {
         int height = getHeight();
         int minDistance = 100;
 
-        // Jeśli wymiary są za małe, nie rozmieszczamy jedzenia
         if (width <= minDistance * 2 || height <= minDistance * 2) {
-            System.err.println("Zbyt mala odleglosc by zespawnowac tu jedzenie.");
+            System.err.println("Zbyt mała odległość by zespawnować tu jedzenie.");
             return;
         }
-        int foodCount;  // Liczba jedzenia na poziomie
-        int unhealthyFoodCount; // Liczba niezdrowego jedzenia
+        int foodCount;
+        int unhealthyFoodCount;
 
-        // Określamy liczbę jedzenia w zależności od poziomu
         switch (main.getLevel()) {
             case 1:
                 foodCount = 25;
@@ -86,66 +122,74 @@ public class GamePanel extends JPanel {
                 foodCount = 40;
                 break;
             default:
-                foodCount = 25; // Domyślna wartość
+                foodCount = 25;
         }
 
-        // Niezdrowe jedzenie stanowi maksymalnie 20% całkowitej liczby jedzenia
-        unhealthyFoodCount = foodCount / 5;  // 20% z foodCount
+        unhealthyFoodCount = foodCount / 5;
 
-        healthyFoodCount = 0;  // Resetowanie licznika zdrowego jedzenia
+        healthyFoodCount = 0;
 
-        // Ustalamy tablicę na tyle dużą, aby pomieścić wszystkie posiłki
         foodX = new int[foodCount];
         foodY = new int[foodCount];
-        currentFoodType = new int[foodCount]; // 0 - zdrowe, 1 - niezdrowe
+        currentFoodType = new int[foodCount];
 
-        // Rozstawiamy jedzenie
         for (int i = 0; i < foodCount; i++) {
             foodX[i] = random.nextInt(width - minDistance * 2) + minDistance;
             foodY[i] = random.nextInt(height - minDistance * 2) + minDistance;
 
-            // Upewniamy się, że niezdrowe jedzenie nie przekracza 20% całkowitej liczby jedzenia
             if (i < unhealthyFoodCount) {
-                currentFoodType[i] = 1; // Niezdrowe jedzenie
+                currentFoodType[i] = 1;
             } else {
-                currentFoodType[i] = 0; // Zdrowe jedzenie
-                healthyFoodCount++;  // Zwiększamy licznik zdrowego jedzenia
+                currentFoodType[i] = 0;
+                healthyFoodCount++;
             }
         }
     }
-
 
     private void checkFoodCollision() {
         for (int i = 0; i < foodX.length; i++) {
             if (Math.abs(playerX - foodX[i]) < 30 && Math.abs(playerY - foodY[i]) < 30) {
                 if (currentFoodType[i] == 0) {
                     main.updateScore(main.getScore() + 10);
-                    healthyFoodCount--; // Zebrano zdrowe jedzenie
+                    healthyFoodCount--;
+                    showFoodDescription("Food" + (i % 15 + 1) + ".png", true);
                 } else {
                     main.updateLives(main.getLives() - 1);
+                    showFoodDescription("JunkFood" + (i % 4 + 1) + ".png", false);
                 }
 
                 if (main.getLives() <= 0) {
                     JOptionPane.showMessageDialog(this, "Gra zakończona! Przegrałeś/aś.");
-                    System.exit(0);
+                    main.returnStraightToMainMenu();
+                    return;
                 }
 
-                // Usuń zebrane jedzenie z planszy
-                foodX[i] = -100;  // Umieść poza planszą
+                foodX[i] = -100;
                 foodY[i] = -100;
 
-                // Sprawdź, czy wystarczająca liczba zdrowego jedzenia została zebrana
                 if (healthyFoodCount <= 0) {
-                    proceedToNextLevel();  // Przejdź do kolejnego poziomu
+                    proceedToNextLevel();
                 }
             }
+        }
+    }
+
+    private void showFoodDescription(String foodImage, boolean isHealthy) {
+        foodDescription = isHealthy ? foodDescriptions.get(foodImage) : junkFoodDescriptions.get(foodImage);
+        if (foodDescription != null) {
+            if (descriptionTimer != null) {
+                descriptionTimer.stop();
+            }
+            descriptionTimer = new Timer(10000, (ActionEvent e) -> foodDescription = "");
+            descriptionTimer.setRepeats(false);
+            descriptionTimer.start();
         }
     }
 
     private void proceedToNextLevel() {
         main.nextLevel();
         JOptionPane.showMessageDialog(this, "Gratulacje! Przechodzisz do kolejnego poziomu.");
-        spawnFood();  // Rozmieść jedzenie na nowym poziomie
+        spawnFood();
         repaint();
     }
 
@@ -168,19 +212,38 @@ public class GamePanel extends JPanel {
         }
 
         drawLives(g);
+        drawOutlinedString(g, foodDescription, 10, 30);
+    }
+
+    private void drawOutlinedString(Graphics g, String text, int x, int y) {
+        if (text != null && !text.isEmpty()) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setFont(new Font("Arial", Font.BOLD, 16));
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            // Draw black outline
+            g2.setColor(Color.BLACK);
+            g2.drawString(text, x - 1, y - 1);
+            g2.drawString(text, x - 1, y + 1);
+            g2.drawString(text, x + 1, y - 1);
+            g2.drawString(text, x + 1, y + 1);
+
+            // Draw white text
+            g2.setColor(Color.WHITE);
+            g2.drawString(text, x, y);
+        }
     }
 
     private void gameOver() {
         int option = JOptionPane.showOptionDialog(this, "Gra zakończona! Chcesz zagrać ponownie?", "Game Over",
-                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] {"Tak", "Nie"}, "Tak");
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Tak", "Nie"}, "Tak");
 
         if (option == JOptionPane.YES_OPTION) {
-            main.startGame();  // Rozpocznij nową grę
+            main.startGame();
         } else {
-            System.exit(0);  // Zamknij grę
+            main.returnToMainMenu();
         }
     }
-
 
     private void drawLives(Graphics g) {
         Image liveHeart = new ImageIcon(getClass().getResource("/Live.png")).getImage();

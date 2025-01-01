@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
@@ -8,13 +9,19 @@ public class Main extends JFrame {
     private int level = 1;
     private int score = 0;
     private int healthyFoodCollected = 0;
+
+    private final int initialLives = 3;
     private int requiredFoodToCollect = 5;
-    private int lives = 3;
+    private int lives = initialLives;
     private JLabel scoreLabel, levelLabel, worldLabel, livesLabel;
     private GamePanel gamePanel;
     private Font customFont;
-    private MainMenu mainMenu;  // Panel Menu Głównego
-    private InfoPanel infoPanel;  // InfoPanel
+    private MainMenu mainMenu;
+    private InfoPanel infoPanel;
+
+    private JMenuBar menuBar;
+    private JMenu optionsMenu;
+    private JMenuItem returnToMenuItem, returnToGameItem;
 
     public Main() {
         setTitle("Zdrowa Przygoda");
@@ -23,7 +30,6 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Inicjalizacja czcionki
         try (InputStream fontStream = getClass().getResourceAsStream("/MegamaxJonathanTooFont.ttf")) {
             customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(18f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -33,23 +39,18 @@ public class Main extends JFrame {
             customFont = new Font("SansSerif", Font.BOLD, 18);
         }
 
-        // Inicjujemy menu główne
         mainMenu = new MainMenu(this);
         add(mainMenu);
 
-        // Inicjalizujemy InfoPanel, ale nie dodajemy go teraz
         infoPanel = new InfoPanel(customFont);
 
-        // Inicjalizacja JLabel
         scoreLabel = infoPanel.getScoreLabel();
         levelLabel = infoPanel.getLevelLabel();
         worldLabel = infoPanel.getWorldLabel();
         livesLabel = infoPanel.getLivesLabel();
 
-        // Fokus na JFrame
         setFocusable(true);
 
-        // Umożliwiamy grze przechwytywanie zdarzeń klawiatury
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (gamePanel != null) {
@@ -57,24 +58,46 @@ public class Main extends JFrame {
                 }
             }
         });
+
+        initializeMenu();
     }
 
-    // Funkcja do rozpoczęcia gry
-    public void startGame() {
-        remove(mainMenu);  // Usuwamy menu główne
-        gamePanel = new GamePanel(this);  // Tworzymy nowy panel gry
-        add(gamePanel, BorderLayout.CENTER);
+    private void initializeMenu() {
+        menuBar = new JMenuBar();
+        optionsMenu = new JMenu("Opcje");
 
-        // Dodajemy InfoPanel
+        returnToMenuItem = new JMenuItem("Powrót do menu głównego");
+        returnToMenuItem.addActionListener((ActionEvent e) -> returnToMainMenu());
+
+        returnToGameItem = new JMenuItem("Powrót do gry");
+        returnToGameItem.addActionListener((ActionEvent e) -> returnToGame());
+
+        optionsMenu.add(returnToMenuItem);
+        optionsMenu.add(returnToGameItem);
+        menuBar.add(optionsMenu);
+        setJMenuBar(menuBar);
+    }
+
+    public void startGame() {
+        getContentPane().removeAll();
+        gamePanel = new GamePanel(this);
+        add(gamePanel, BorderLayout.CENTER);
         add(infoPanel, BorderLayout.NORTH);
 
+        score = 0;
+        level = 1;
+        lives = initialLives;
+
+        scoreLabel.setText("Wynik: " + score);
+        levelLabel.setText("Poziom: " + level);
+        livesLabel.setText("Zycia: " + lives);
+
         setFocusable(true);
-        requestFocusInWindow();  // Zmieniamy fokus na panel gry
+        requestFocusInWindow();
         revalidate();
         repaint();
     }
 
-    // Funkcja przechodzenia do kolejnego poziomu
     public void nextLevel() {
         level++;
         healthyFoodCollected = 0;
@@ -82,16 +105,16 @@ public class Main extends JFrame {
 
         switch (level) {
             case 2 -> {
-                worldLabel.setText("Environment: Kitchen");
+                worldLabel.setText("Environment: Dom");
                 gamePanel.setBackground(new Color(255, 204, 153));
             }
             case 3 -> {
-                worldLabel.setText("Environment: Garden");
+                worldLabel.setText("Environment: Ogrod");
                 gamePanel.setBackground(new Color(204, 255, 204));
             }
             default -> {
                 JOptionPane.showMessageDialog(this, "Gratulacje! Ukończyłeś/aś grę!");
-                System.exit(0);
+                returnStraightToMainMenu();
             }
         }
         levelLabel.setText("Level: " + level);
@@ -107,12 +130,12 @@ public class Main extends JFrame {
 
     public void updateScore(int newScore) {
         score = newScore;
-        scoreLabel.setText("Wynik: " + score);  // Teraz scoreLabel nie jest null
+        scoreLabel.setText("Wynik: " + score);
     }
 
     public void updateLives(int newLives) {
         lives = newLives;
-        livesLabel.setText("  Zycia: " + lives);
+        livesLabel.setText("Zycia: " + lives);
     }
 
     public int getScore() {
@@ -125,5 +148,72 @@ public class Main extends JFrame {
 
     public int getLevel() {
         return level;
+    }
+
+    public void returnToMainMenu() {
+        int option = JOptionPane.showConfirmDialog(this, "Czy na pewno chcesz wrócić do menu głównego? Postęp w grze zostanie utracony.",
+                "Powrót do menu głównego", JOptionPane.YES_NO_OPTION);
+
+        if (option == JOptionPane.YES_OPTION) {
+            getContentPane().removeAll();
+            add(mainMenu);
+            revalidate();
+            repaint();
+        }
+    }
+
+    public void returnStraightToMainMenu() {
+        getContentPane().removeAll();
+        add(mainMenu);
+        revalidate();
+        repaint();
+    }
+
+    public void returnToGame() {
+    }
+
+    public void showOptionsScreen() {
+        getContentPane().removeAll();
+        JPanel optionsPanel = new JPanel();
+        optionsPanel.setLayout(new BorderLayout());
+        JLabel optionsLabel = new JLabel("Opcje", SwingConstants.CENTER);
+        optionsLabel.setFont(customFont.deriveFont(32f));
+        optionsPanel.add(optionsLabel, BorderLayout.CENTER);
+
+        JButton returnToMenuButton = new JButton("Powrot do menu glownego");
+        returnToMenuButton.setFont(customFont.deriveFont(18f));
+        returnToMenuButton.addActionListener(e -> returnStraightToMainMenu());
+        optionsPanel.add(returnToMenuButton, BorderLayout.SOUTH);
+
+        add(optionsPanel);
+        revalidate();
+        repaint();
+    }
+
+    public void showAuthorScreen() {
+        getContentPane().removeAll();
+        JPanel authorPanel = new JPanel();
+        authorPanel.setLayout(new BorderLayout());
+
+        JTextArea authorTextArea = new JTextArea("Jakub Kunio 189002");
+        authorTextArea.setFont(customFont.deriveFont(32f));
+        authorTextArea.setLineWrap(true);
+        authorTextArea.setWrapStyleWord(true);
+        authorTextArea.setEditable(false);
+        authorTextArea.setOpaque(false); // Aby tekst miał przezroczyste tło
+
+        JScrollPane scrollPane = new JScrollPane(authorTextArea);
+        scrollPane.setBorder(null); // Usunięcie obramowania
+
+        authorPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JButton returnToMenuButton = new JButton("Powrot do menu glownego");
+        returnToMenuButton.setFont(customFont.deriveFont(18f));
+        returnToMenuButton.addActionListener(e -> returnStraightToMainMenu());
+        authorPanel.add(returnToMenuButton, BorderLayout.SOUTH);
+
+        add(authorPanel);
+        revalidate();
+        repaint();
     }
 }
