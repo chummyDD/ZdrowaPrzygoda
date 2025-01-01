@@ -1,8 +1,8 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import javax.swing.*;
 
 public class Main extends JFrame {
     private int level = 1;

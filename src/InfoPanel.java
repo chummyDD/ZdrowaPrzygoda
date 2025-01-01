@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class InfoPanel extends JPanel {
     private JLabel scoreLabel;
@@ -23,7 +23,7 @@ public class InfoPanel extends JPanel {
         levelLabel.setForeground(Color.BLACK);
         add(levelLabel);  // Dodajemy do panelu
 
-        worldLabel = new JLabel("Swiat: Dom");
+        worldLabel = new JLabel("Swiat: Boisko");
         worldLabel.setFont(customFont);
         worldLabel.setForeground(Color.BLACK);
         add(worldLabel);  // Dodajemy do panelu
@@ -47,6 +47,7 @@ public class InfoPanel extends JPanel {
     }
 
     public JLabel getLivesLabel() {
+
         return livesLabel;
     }
 }

@@ -36,6 +36,34 @@ public class MainMenu extends JPanel {
             }
         });
 
+        // Akcja po kliknięciu "Opcje"
+        optionsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainApp.showOptionsScreen();  // Wyświetlanie ekranu opcji
+            }
+        });
+
+        // Akcja po kliknięciu "Autor"
+        authorButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainApp.showAuthorScreen();  // Wyświetlanie ekranu autora
+            }
+        });
+
+        // Akcja po kliknięciu "Wyjście"
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int confirmed = JOptionPane.showConfirmDialog(null, "Czy na pewno chcesz wyjść z gry?", "Wyjście z gry",
+                        JOptionPane.YES_NO_OPTION);
+                if (confirmed == JOptionPane.YES_OPTION) {
+                    System.exit(0);
+                }
+            }
+        });
+
         add(startButton); // Dodanie przycisku do panelu
         add(optionsButton); // Dodanie przycisku do panelu
         add(authorButton); // Dodanie przycisku do panelu
@@ -91,7 +119,7 @@ public class MainMenu extends JPanel {
             g.drawImage(backgroundImage, backgroundX + backgroundImage.getWidth(null), 0, null);
         }
 
-        // Rysowanie logo o rozmiarze 200x200 nad przyciskami
+        // Rysowanie logo o rozmiarze 500x500 nad przyciskami
         if (scaledLogoImage != null) {
             g.drawImage(scaledLogoImage, (getWidth() - 200) / 2, 100, null);
         }

@@ -1,7 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
+import javax.swing.*;
 
 public class GamePanel extends JPanel {
     private int playerX = 300, playerY = 300;
