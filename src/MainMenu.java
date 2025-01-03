@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
+/**
+ * Klasa reprezentująca menu główne gry.
+ */
 public class MainMenu extends JPanel {
     private Image backgroundImage;
     private Image logoImage;
@@ -15,6 +18,11 @@ public class MainMenu extends JPanel {
     private Main mainApp;
     private JLabel characterPreview;
 
+    /**
+     * Konstruktor klasy MainMenu.
+     *
+     * @param mainApp główna aplikacja gry
+     */
     public MainMenu(Main mainApp) {
         this.mainApp = mainApp;
         setLayout(null);
@@ -31,26 +39,11 @@ public class MainMenu extends JPanel {
         JButton authorButton = createButton("Autor", 50, 360);
         JButton exitButton = createButton("Wyjście", 50, 440);
 
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainApp.startGame();
-            }
-        });
+        startButton.addActionListener(e -> mainApp.startGame());
 
-        optionsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainApp.showOptionsScreen();
-            }
-        });
+        optionsButton.addActionListener(e -> mainApp.showOptionsScreen());
 
-        authorButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainApp.showAuthorScreen();
-            }
-        });
+        authorButton.addActionListener(e -> mainApp.showAuthorScreen());
 
         exitButton.addActionListener(e -> System.exit(0));
 
@@ -83,6 +76,14 @@ public class MainMenu extends JPanel {
         add(characterPanel);
     }
 
+    /**
+     * Tworzy przycisk z określonym tekstem, pozycją i stylem.
+     *
+     * @param text tekst na przycisku
+     * @param x pozycja X przycisku
+     * @param y pozycja Y przycisku
+     * @return utworzony przycisk
+     */
     private JButton createButton(String text, int x, int y) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 30));
@@ -94,6 +95,14 @@ public class MainMenu extends JPanel {
         return button;
     }
 
+    /**
+     * Skaluje obraz do określonych rozmiarów.
+     *
+     * @param srcImg źródłowy obraz
+     * @param width szerokość docelowa
+     * @param height wysokość docelowa
+     * @return przeskalowany obraz
+     */
     private Image getScaledImage(Image srcImg, int width, int height) {
         BufferedImage resizedImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = resizedImg.createGraphics();
@@ -108,6 +117,9 @@ public class MainMenu extends JPanel {
         return resizedImg;
     }
 
+    /**
+     * Rozpoczyna animację tła.
+     */
     private void startBackgroundAnimation() {
         animationTimer = new Timer(30, e -> {
             backgroundX -= 2;
@@ -133,6 +145,9 @@ public class MainMenu extends JPanel {
         }
     }
 
+    /**
+     * Aktualizuje podgląd wybranej postaci w menu.
+     */
     public void updateCharacterPreview() {
         characterPreview.setIcon(new ImageIcon(getClass().getResource("/" + mainApp.getSelectedCharacter())));
     }

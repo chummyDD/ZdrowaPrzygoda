@@ -6,6 +6,10 @@ import java.io.InputStream;
 import javax.sound.sampled.*;
 import javax.swing.*;
 
+/**
+ * Główna klasa aplikacji gry "Zdrowa Przygoda".
+ * Odpowiada za inicjalizację gry, menu głównego, paneli informacji i opcji.
+ */
 public class Main extends JFrame {
     private int level = 1;
     private int score = 0;
@@ -29,6 +33,10 @@ public class Main extends JFrame {
     private JMenuItem returnToMenuItem, returnToGameItem;
     private String selectedCharacter = "Postac1.png"; // Default character
 
+    /**
+     * Konstruktor klasy Main.
+     * Inicjalizuje główne okno gry, ładuje niestandardową czcionkę i muzykę oraz ustawia menu.
+     */
     public Main() {
         setTitle("Zdrowa Przygoda");
         setSize(1280, 724);
@@ -72,6 +80,9 @@ public class Main extends JFrame {
         initializeMenu();
     }
 
+    /**
+     * Inicjalizuje menu główne.
+     */
     private void initializeMenu() {
         menuBar = new JMenuBar();
         optionsMenu = new JMenu("Opcje");
@@ -88,6 +99,9 @@ public class Main extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    /**
+     * Ładuje muzykę dla menu głównego i gry.
+     */
     private void loadMusic() {
         try {
             AudioInputStream menuAudioStream = AudioSystem.getAudioInputStream(getClass().getResource("/menu_music.wav"));
@@ -108,6 +122,9 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Rozpoczyna grę, ustawia początkowe wartości i wyświetla panel gry.
+     */
     public void startGame() {
         if (menuMusicClip != null && menuMusicClip.isRunning()) {
             menuMusicClip.stop();
@@ -136,6 +153,9 @@ public class Main extends JFrame {
         repaint();
     }
 
+    /**
+     * Przechodzi do następnego poziomu gry.
+     */
     public void nextLevel() {
         level++;
         healthyFoodCollected = 0;
@@ -159,6 +179,11 @@ public class Main extends JFrame {
         gamePanel.updateBackgroundForLevel(level);
     }
 
+    /**
+     * Główna metoda aplikacji.
+     *
+     * @param args argumenty wiersza poleceń (nie używane)
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Main game = new Main();
@@ -166,28 +191,56 @@ public class Main extends JFrame {
         });
     }
 
+    /**
+     * Aktualizuje wynik gracza.
+     *
+     * @param newScore nowy wynik do ustawienia
+     */
     public void updateScore(int newScore) {
         score = newScore;
         scoreLabel.setText("Wynik: " + score);
     }
 
+    /**
+     * Aktualizuje liczbę żyć gracza.
+     *
+     * @param newLives nowa liczba żyć do ustawienia
+     */
     public void updateLives(int newLives) {
         lives = newLives;
         livesLabel.setText("Zycia: " + lives);
     }
 
+    /**
+     * Zwraca aktualny wynik gracza.
+     *
+     * @return aktualny wynik
+     */
     public int getScore() {
         return score;
     }
 
+    /**
+     * Zwraca aktualną liczbę żyć gracza.
+     *
+     * @return aktualna liczba żyć
+     */
     public int getLives() {
         return lives;
     }
 
+    /**
+     * Zwraca aktualny poziom gry.
+     *
+     * @return aktualny poziom
+     */
     public int getLevel() {
         return level;
     }
 
+    /**
+     * Powraca do menu głównego, resetując postęp w grze.
+     */
     public void returnToMainMenu() {
         int option = JOptionPane.showConfirmDialog(this, "Czy na pewno chcesz wrócić do menu głównego? Postęp w grze zostanie utracony.",
                 "Powrót do menu głównego", JOptionPane.YES_NO_OPTION);
@@ -207,6 +260,9 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Powraca bezpośrednio do menu głównego, resetując postęp w grze.
+     */
     public void returnStraightToMainMenu() {
         if (gameMusicClip != null && gameMusicClip.isRunning()) {
             gameMusicClip.stop();
@@ -221,9 +277,15 @@ public class Main extends JFrame {
         repaint();
     }
 
+    /**
+     * Powraca do gry z menu opcji.
+     */
     public void returnToGame() {
     }
 
+    /**
+     * Wyświetla panel opcji.
+     */
     public void showOptionsScreen() {
         getContentPane().removeAll();
         add(optionsPanel);
@@ -231,6 +293,9 @@ public class Main extends JFrame {
         repaint();
     }
 
+    /**
+     * Wyświetla informacje o autorze gry.
+     */
     public void showAuthorScreen() {
         getContentPane().removeAll();
         JPanel authorPanel = new JPanel();
@@ -269,10 +334,18 @@ public class Main extends JFrame {
         repaint();
     }
 
+    /**
+     * Zwraca aktualnie wybraną postać.
+     *
+     * @return wybrana postać
+     */
     public String getSelectedCharacter() {
         return selectedCharacter;
     }
 
+    /**
+     * Wyświetla menu wyboru postaci.
+     */
     public void showCharacterSelectionMenu() {
         getContentPane().removeAll();
         add(new CharacterSelectionPanel(this, customFont));
@@ -280,6 +353,11 @@ public class Main extends JFrame {
         repaint();
     }
 
+    /**
+     * Ustawia wybraną postać.
+     *
+     * @param character nazwa pliku z wybraną postacią
+     */
     public void setSelectedCharacter(String character) {
         this.selectedCharacter = character;
         mainMenu.updateCharacterPreview(); // Aktualizacja podglądu w menu głównym

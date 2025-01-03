@@ -3,6 +3,9 @@ import javax.sound.sampled.FloatControl;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Klasa reprezentująca panel opcji, pozwalający graczom dostosować głośność muzyki.
+ */
 public class OptionsPanel extends JPanel {
     private JSlider menuVolumeSlider;
     private JSlider gameVolumeSlider;
@@ -10,6 +13,14 @@ public class OptionsPanel extends JPanel {
     private Clip gameMusicClip;
     private Main mainApp;
 
+    /**
+     * Konstruktor klasy OptionsPanel.
+     *
+     * @param menuMusicClip klip muzyczny menu
+     * @param gameMusicClip klip muzyczny gry
+     * @param mainApp główna aplikacja gry
+     * @param customFont niestandardowa czcionka używana w panelu
+     */
     public OptionsPanel(Clip menuMusicClip, Clip gameMusicClip, Main mainApp, Font customFont) {
         this.menuMusicClip = menuMusicClip;
         this.gameMusicClip = gameMusicClip;
@@ -22,11 +33,13 @@ public class OptionsPanel extends JPanel {
         menuVolumeLabel.setForeground(Color.WHITE); // Jasny kolor tekstu
 
         menuVolumeSlider = createTransparentSlider();
+        menuVolumeSlider.addChangeListener(e -> adjustVolume(menuMusicClip, menuVolumeSlider.getValue()));
 
         JLabel gameVolumeLabel = new JLabel("Głośność gry:");
         gameVolumeLabel.setForeground(Color.WHITE); // Jasny kolor tekstu
 
         gameVolumeSlider = createTransparentSlider();
+        gameVolumeSlider.addChangeListener(e -> adjustVolume(gameMusicClip, gameVolumeSlider.getValue()));
 
         JButton saveButton = new JButton("Zapisz");
         saveButton.setFont(customFont.deriveFont(18f));
@@ -44,13 +57,23 @@ public class OptionsPanel extends JPanel {
         add(returnButton);
     }
 
+    /**
+     * Tworzy przezroczysty suwak do regulacji głośności.
+     *
+     * @return przezroczysty suwak
+     */
     private JSlider createTransparentSlider() {
         JSlider slider = new JSlider(0, 100, 50);
         slider.setOpaque(false); // Przezroczystość suwaka
-        slider.addChangeListener(e -> adjustVolume(menuMusicClip, slider.getValue()));
         return slider;
     }
 
+    /**
+     * Dostosowuje głośność dla podanego klipu muzycznego.
+     *
+     * @param clip klip muzyczny do dostosowania głośności
+     * @param volume nowa wartość głośności
+     */
     private void adjustVolume(Clip clip, int volume) {
         if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
             FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -60,8 +83,10 @@ public class OptionsPanel extends JPanel {
         }
     }
 
+    /**
+     * Zapisuje ustawienia opcji.
+     */
     private void saveSettings() {
         JOptionPane.showMessageDialog(this, "Ustawienia zostały zapisane!");
     }
-
 }

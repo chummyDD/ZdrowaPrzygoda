@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Random;
 import javax.swing.*;
 
+/**
+ * Klasa reprezentująca panel gry, odpowiedzialna za rysowanie gracza i jedzenia oraz obsługę kolizji.
+ */
 public class GamePanel extends JPanel {
     private int playerX = 300, playerY = 300;
     private int[] foodX, foodY, currentFoodType;
@@ -20,6 +23,11 @@ public class GamePanel extends JPanel {
     private Map<String, String> foodDescriptions;
     private Map<String, String> junkFoodDescriptions;
 
+    /**
+     * Konstruktor klasy GamePanel.
+     *
+     * @param main główna aplikacja gry
+     */
     public GamePanel(Main main) {
         this.main = main;
         foodX = new int[5];
@@ -44,6 +52,9 @@ public class GamePanel extends JPanel {
         });
     }
 
+    /**
+     * Inicjalizuje opisy zdrowego jedzenia.
+     */
     private void initializeFoodDescriptions() {
         foodDescriptions = new HashMap<>();
         foodDescriptions.put("Food1.png", "Banany są bogate w potas, witaminę B6 i błonnik, co wspiera serce, mięśnie i trawienie, czyniąc je zdrową i energetyczną przekąską.");
@@ -71,8 +82,12 @@ public class GamePanel extends JPanel {
         foodDescriptions.put("Food23.png", "Śliwki mogą być ciężkostrawne dla niektórych, ale warto je jeść, bo wspomagają trawienie dzięki zawartości błonnika.");
         foodDescriptions.put("Food24.png", "Smoczy owoc ma niską zawartość kalorii i cukrów, ale warto go jeść, bo dostarcza antyoksydantów i witaminę C.");
         foodDescriptions.put("Food25.png", "Figi zawierają dużo naturalnych cukrów, ale warto je jeść, bo są bogate w błonnik i wspierają zdrowie jelit.");
- }
+    }
 
+
+    /**
+     * Inicjalizuje opisy niezdrowego jedzenia.
+     */
     private void initializeJunkFoodDescriptions() {
         junkFoodDescriptions = new HashMap<>();
         junkFoodDescriptions.put("JunkFood1.png", "Hamburgery często zawierają dużo nasyconych tłuszczów, soli i przetworzonych dodatków, co może prowadzić do problemów z sercem i wagą.");
@@ -91,6 +106,12 @@ public class GamePanel extends JPanel {
         junkFoodDescriptions.put("JunkFood14.png", "Red Bull zawiera dużo cukru i kofeiny, co może prowadzić do skoków poziomu energii, a potem jej spadków, obciążając serce i układ nerwowy.");
     }
 
+
+    /**
+     * Aktualizuje tło gry w zależności od poziomu.
+     *
+     * @param level aktualny poziom
+     */
     public void updateBackgroundForLevel(int level) {
         switch (level) {
             case 1 -> backgroundImage = new ImageIcon(getClass().getResource("/Tlo1.png")).getImage();
@@ -108,6 +129,11 @@ public class GamePanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Przesuwa gracza na planszy w zależności od naciśniętego klawisza.
+     *
+     * @param keyCode kod naciśniętego klawisza
+     */
     public void movePlayer(int keyCode) {
         switch (keyCode) {
             case KeyEvent.VK_UP, KeyEvent.VK_W -> playerY = Math.max(playerY - 10, 0);
@@ -119,6 +145,9 @@ public class GamePanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Generuje jedzenie na planszy w losowych miejscach.
+     */
     private void spawnFood() {
         int width = getWidth();
         int height = getHeight();
@@ -165,6 +194,10 @@ public class GamePanel extends JPanel {
             }
         }
     }
+
+    /**
+     * Sprawdza kolizje gracza z jedzeniem i aktualizuje stan gry.
+     */
     private void checkFoodCollision() {
         for (int i = 0; i < foodX.length; i++) {
             if (Math.abs(playerX - foodX[i]) < 30 && Math.abs(playerY - foodY[i]) < 30) {
@@ -192,6 +225,12 @@ public class GamePanel extends JPanel {
         }
     }
 
+    /**
+     * Wyświetla opis jedzenia na ekranie.
+     *
+     * @param foodImage nazwa pliku z obrazem jedzenia
+     * @param isHealthy czy jedzenie jest zdrowe
+     */
     private void showFoodDescription(String foodImage, boolean isHealthy) {
         foodDescription = isHealthy ? foodDescriptions.get(foodImage) : junkFoodDescriptions.get(foodImage);
         if (foodDescription != null) {
@@ -204,15 +243,21 @@ public class GamePanel extends JPanel {
         }
     }
 
+    /**
+     * Przechodzi do następnego poziomu gry.
+     */
     private void proceedToNextLevel() {
         main.nextLevel();
-        if (main.getLevel()<4) {
+        if (main.getLevel() < 4) {
             JOptionPane.showMessageDialog(this, "Gratulacje! Przechodzisz do kolejnego poziomu.");
             spawnFood();
             repaint();
         }
     }
 
+    /**
+     * Kończy grę i pyta gracza, czy chce zagrać ponownie.
+     */
     private void gameOver() {
         int option = JOptionPane.showOptionDialog(this, "Gra zakończona! Chcesz zagrać ponownie?", "Game Over",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Tak", "Nie"}, "Tak");
@@ -246,6 +291,14 @@ public class GamePanel extends JPanel {
         drawOutlinedString(g, foodDescription, 10, 30);
     }
 
+    /**
+     * Rysuje tekst z obrysem na ekranie.
+     *
+     * @param g obiekt Graphics
+     * @param text tekst do narysowania
+     * @param x współrzędna X
+     * @param y współrzędna Y
+     */
     private void drawOutlinedString(Graphics g, String text, int x, int y) {
         if (text != null && !text.isEmpty()) {
             Graphics2D g2 = (Graphics2D) g;
@@ -265,6 +318,11 @@ public class GamePanel extends JPanel {
         }
     }
 
+    /**
+     * Rysuje ikony żyć gracza na ekranie.
+     *
+     * @param g obiekt Graphics
+     */
     private void drawLives(Graphics g) {
         Image liveHeart = new ImageIcon(getClass().getResource("/Live.png")).getImage();
         Image noLiveHeart = new ImageIcon(getClass().getResource("/NoLive.png")).getImage();
