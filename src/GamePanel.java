@@ -26,7 +26,7 @@ public class GamePanel extends JPanel {
         foodY = new int[5];
         currentFoodType = new int[5];
 
-        playerImage = new ImageIcon(getClass().getResource("/potrac.png")).getImage();
+        playerImage = new ImageIcon(getClass().getResource("/" + main.getSelectedCharacter())).getImage();
         updateBackgroundForLevel(main.getLevel());
 
         // Initialize food and junk food descriptions
@@ -61,7 +61,17 @@ public class GamePanel extends JPanel {
         foodDescriptions.put("Food13.png", "Bakłażany zawierają błonnik, antyoksydanty i niską ilość kalorii, wspierając zdrowie serca i kontrolę wagi.");
         foodDescriptions.put("Food14.png", "Ziemniaki dostarczają potasu, witaminy C i skrobi, wspierając zdrowie mięśni, odporność i dostarczając energii.");
         foodDescriptions.put("Food15.png", "Pomidory są bogate w likopen, witaminę C i potas, wspierając zdrowie serca, skóry i odporność.");
-    }
+        foodDescriptions.put("Food16.png", "Woda nie zawiera kalorii, a dostarcza niezbędnego nawodnienia, wspierając funkcjonowanie organizmu, detoksykację i zdrowy metabolizm.");
+        foodDescriptions.put("Food17.png", "Cytryny mogą być kwaśne i drażniące dla szkliwa zębów, ale warto je jeść, bo są bogate w witaminę C i wspierają odporność oraz trawienie.");
+        foodDescriptions.put("Food18.png", "Kiwi zawiera kwas szczawiowy, który może sprzyjać kamieniom nerkowym u niektórych osób, ale warto je jeść, bo dostarcza witaminę C, błonnik i przeciwutleniacze.");
+        foodDescriptions.put("Food19.png", "Melon ma wysoki indeks glikemiczny, ale warto go jeść, bo jest niskokaloryczny i bogaty w witaminy oraz wodę, wspomagając nawodnienie.");
+        foodDescriptions.put("Food20.png", "Gruszki mogą zawierać fruktozę, która w nadmiarze może obciążać układ trawienny, ale warto je jeść, bo dostarczają błonnika i witamin.");
+        foodDescriptions.put("Food21.png", "Truskawki mogą zawierać pozostałości pestycydów, ale warto je jeść, bo są bogate w witaminę C, antyoksydanty i mało kaloryczne.");
+        foodDescriptions.put("Food22.png", "Ogórek ma mało składników odżywczych w porównaniu do innych warzyw, ale warto go jeść, bo doskonale nawadnia organizm.");
+        foodDescriptions.put("Food23.png", "Śliwki mogą być ciężkostrawne dla niektórych, ale warto je jeść, bo wspomagają trawienie dzięki zawartości błonnika.");
+        foodDescriptions.put("Food24.png", "Smoczy owoc ma niską zawartość kalorii i cukrów, ale warto go jeść, bo dostarcza antyoksydantów i witaminę C.");
+        foodDescriptions.put("Food25.png", "Figi zawierają dużo naturalnych cukrów, ale warto je jeść, bo są bogate w błonnik i wspierają zdrowie jelit.");
+ }
 
     private void initializeJunkFoodDescriptions() {
         junkFoodDescriptions = new HashMap<>();
@@ -69,6 +79,16 @@ public class GamePanel extends JPanel {
         junkFoodDescriptions.put("JunkFood2.png", "Frytki są bogate w tłuszcze trans, sól i kalorie, co sprzyja otyłości i zwiększa ryzyko chorób serca.");
         junkFoodDescriptions.put("JunkFood3.png", "Pepsi zawiera dużo cukru i sztucznych dodatków, co może powodować próchnicę, nadwagę i skoki poziomu cukru we krwi.");
         junkFoodDescriptions.put("JunkFood4.png", "Sprite jest pełen cukru i pustych kalorii, co zwiększa ryzyko otyłości i problemów metabolicznych.");
+        junkFoodDescriptions.put("JunkFood5.png", "Chipsy zawierają dużo soli, tłuszczów trans i sztucznych dodatków, co zwiększa ryzyko otyłości i chorób serca.");
+        junkFoodDescriptions.put("JunkFood6.png", "Hotdogi są pełne tłuszczów nasyconych, soli i konserwantów, co może obciążać serce i sprzyjać chorobom układu krążenia.");
+        junkFoodDescriptions.put("JunkFood7.png", "Żelki zawierają dużo cukru i sztucznych barwników, co może prowadzić do próchnicy i skoków cukru we krwi.");
+        junkFoodDescriptions.put("JunkFood8.png", "Pączki są bogate w cukry, tłuszcze trans i puste kalorie, sprzyjając przybieraniu na wadze i problemom z cukrzycą.");
+        junkFoodDescriptions.put("JunkFood9.png", "Ser może zawierać dużo tłuszczów nasyconych i soli, co przy nadmiernym spożyciu obciąża serce i nerki.");
+        junkFoodDescriptions.put("JunkFood10.png", "Lody zawierają dużo cukru, tłuszczu i kalorii, co może prowadzić do otyłości i skoków poziomu cukru we krwi.");
+        junkFoodDescriptions.put("JunkFood11.png", "Białe pieczywo ma mało błonnika i składników odżywczych, co powoduje szybkie skoki cukru i brak uczucia sytości.");
+        junkFoodDescriptions.put("JunkFood12.png", "Ciastka są pełne cukru, tłuszczów trans i pustych kalorii, co sprzyja przybieraniu na wadze i chorobom serca.");
+        junkFoodDescriptions.put("JunkFood13.png", "Czekolada, zwłaszcza mleczna, zawiera dużo cukru i tłuszczu, co może prowadzić do otyłości i problemów z zębami.");
+        junkFoodDescriptions.put("JunkFood14.png", "Red Bull zawiera dużo cukru i kofeiny, co może prowadzić do skoków poziomu energii, a potem jej spadków, obciążając serce i układ nerwowy.");
     }
 
     public void updateBackgroundForLevel(int level) {
@@ -145,22 +165,20 @@ public class GamePanel extends JPanel {
             }
         }
     }
-
     private void checkFoodCollision() {
         for (int i = 0; i < foodX.length; i++) {
             if (Math.abs(playerX - foodX[i]) < 30 && Math.abs(playerY - foodY[i]) < 30) {
                 if (currentFoodType[i] == 0) {
                     main.updateScore(main.getScore() + 10);
                     healthyFoodCount--;
-                    showFoodDescription("Food" + (i % 15 + 1) + ".png", true);
+                    showFoodDescription("Food" + (i % 25 + 1) + ".png", true);
                 } else {
                     main.updateLives(main.getLives() - 1);
-                    showFoodDescription("JunkFood" + (i % 4 + 1) + ".png", false);
+                    showFoodDescription("JunkFood" + (i % 14 + 1) + ".png", false);
                 }
 
                 if (main.getLives() <= 0) {
-                    JOptionPane.showMessageDialog(this, "Gra zakończona! Przegrałeś/aś.");
-                    main.returnStraightToMainMenu();
+                    gameOver();
                     return;
                 }
 
@@ -188,9 +206,22 @@ public class GamePanel extends JPanel {
 
     private void proceedToNextLevel() {
         main.nextLevel();
-        JOptionPane.showMessageDialog(this, "Gratulacje! Przechodzisz do kolejnego poziomu.");
-        spawnFood();
-        repaint();
+        if (main.getLevel()<4) {
+            JOptionPane.showMessageDialog(this, "Gratulacje! Przechodzisz do kolejnego poziomu.");
+            spawnFood();
+            repaint();
+        }
+    }
+
+    private void gameOver() {
+        int option = JOptionPane.showOptionDialog(this, "Gra zakończona! Chcesz zagrać ponownie?", "Game Over",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Tak", "Nie"}, "Tak");
+
+        if (option == JOptionPane.YES_OPTION) {
+            main.startGame();
+        } else {
+            main.returnStraightToMainMenu();
+        }
     }
 
     @Override
@@ -205,9 +236,9 @@ public class GamePanel extends JPanel {
 
         for (int i = 0; i < foodX.length; i++) {
             if (currentFoodType[i] == 0 && foodX[i] != -100 && foodY[i] != -100) {
-                g.drawImage(new ImageIcon(getClass().getResource("/Food" + (i % 15 + 1) + ".png")).getImage(), foodX[i], foodY[i], 40, 40, this);
+                g.drawImage(new ImageIcon(getClass().getResource("/Food" + (i % 25 + 1) + ".png")).getImage(), foodX[i], foodY[i], 40, 40, this);
             } else if (foodX[i] != -100 && foodY[i] != -100) {
-                g.drawImage(new ImageIcon(getClass().getResource("/JunkFood" + (i % 4 + 1) + ".png")).getImage(), foodX[i], foodY[i], 40, 40, this);
+                g.drawImage(new ImageIcon(getClass().getResource("/JunkFood" + (i % 14 + 1) + ".png")).getImage(), foodX[i], foodY[i], 40, 40, this);
             }
         }
 

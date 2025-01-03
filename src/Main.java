@@ -3,6 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import javax.sound.sampled.*;
 import javax.swing.*;
 
 public class Main extends JFrame {
@@ -18,10 +19,15 @@ public class Main extends JFrame {
     private Font customFont;
     private MainMenu mainMenu;
     private InfoPanel infoPanel;
+    private OptionsPanel optionsPanel;
+
+    private Clip menuMusicClip;
+    private Clip gameMusicClip;
 
     private JMenuBar menuBar;
     private JMenu optionsMenu;
     private JMenuItem returnToMenuItem, returnToGameItem;
+    private String selectedCharacter = "Postac1.png"; // Default character
 
     public Main() {
         setTitle("Zdrowa Przygoda");
@@ -39,6 +45,8 @@ public class Main extends JFrame {
             customFont = new Font("SansSerif", Font.BOLD, 18);
         }
 
+        loadMusic();
+
         mainMenu = new MainMenu(this);
         add(mainMenu);
 
@@ -48,6 +56,8 @@ public class Main extends JFrame {
         levelLabel = infoPanel.getLevelLabel();
         worldLabel = infoPanel.getWorldLabel();
         livesLabel = infoPanel.getLivesLabel();
+
+        optionsPanel = new OptionsPanel(menuMusicClip, gameMusicClip, this, customFont);
 
         setFocusable(true);
 
@@ -78,7 +88,35 @@ public class Main extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    private void loadMusic() {
+        try {
+            AudioInputStream menuAudioStream = AudioSystem.getAudioInputStream(getClass().getResource("/menu_music.wav"));
+            menuMusicClip = AudioSystem.getClip();
+            menuMusicClip.open(menuAudioStream);
+
+            AudioInputStream gameAudioStream = AudioSystem.getAudioInputStream(getClass().getResource("/game_music.wav"));
+            gameMusicClip = AudioSystem.getClip();
+            gameMusicClip.open(gameAudioStream);
+
+            FloatControl gameVolumeControl = (FloatControl) gameMusicClip.getControl(FloatControl.Type.MASTER_GAIN);
+            gameVolumeControl.setValue(-7.5f);
+
+            menuMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            menuMusicClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void startGame() {
+        if (menuMusicClip != null && menuMusicClip.isRunning()) {
+            menuMusicClip.stop();
+        }
+        if (gameMusicClip != null && !gameMusicClip.isRunning()) {
+            gameMusicClip.setFramePosition(0);
+            gameMusicClip.start();
+        }
+
         getContentPane().removeAll();
         gamePanel = new GamePanel(this);
         add(gamePanel, BorderLayout.CENTER);
@@ -105,11 +143,11 @@ public class Main extends JFrame {
 
         switch (level) {
             case 2 -> {
-                worldLabel.setText("Environment: Dom");
+                worldLabel.setText("Swiat: Dom");
                 gamePanel.setBackground(new Color(255, 204, 153));
             }
             case 3 -> {
-                worldLabel.setText("Environment: Ogrod");
+                worldLabel.setText("Swiat: Ogrod");
                 gamePanel.setBackground(new Color(204, 255, 204));
             }
             default -> {
@@ -117,7 +155,7 @@ public class Main extends JFrame {
                 returnStraightToMainMenu();
             }
         }
-        levelLabel.setText("Level: " + level);
+        levelLabel.setText("Poziom: " + level);
         gamePanel.updateBackgroundForLevel(level);
     }
 
@@ -155,6 +193,13 @@ public class Main extends JFrame {
                 "Powrót do menu głównego", JOptionPane.YES_NO_OPTION);
 
         if (option == JOptionPane.YES_OPTION) {
+            if (gameMusicClip != null && gameMusicClip.isRunning()) {
+                gameMusicClip.stop();
+            }
+            if (menuMusicClip != null && !menuMusicClip.isRunning()) {
+                menuMusicClip.start();
+            }
+
             getContentPane().removeAll();
             add(mainMenu);
             revalidate();
@@ -163,6 +208,13 @@ public class Main extends JFrame {
     }
 
     public void returnStraightToMainMenu() {
+        if (gameMusicClip != null && gameMusicClip.isRunning()) {
+            gameMusicClip.stop();
+        }
+        if (menuMusicClip != null && !menuMusicClip.isRunning()) {
+            menuMusicClip.start();
+        }
+
         getContentPane().removeAll();
         add(mainMenu);
         revalidate();
@@ -174,17 +226,6 @@ public class Main extends JFrame {
 
     public void showOptionsScreen() {
         getContentPane().removeAll();
-        JPanel optionsPanel = new JPanel();
-        optionsPanel.setLayout(new BorderLayout());
-        JLabel optionsLabel = new JLabel("Opcje", SwingConstants.CENTER);
-        optionsLabel.setFont(customFont.deriveFont(32f));
-        optionsPanel.add(optionsLabel, BorderLayout.CENTER);
-
-        JButton returnToMenuButton = new JButton("Powrot do menu glownego");
-        returnToMenuButton.setFont(customFont.deriveFont(18f));
-        returnToMenuButton.addActionListener(e -> returnStraightToMainMenu());
-        optionsPanel.add(returnToMenuButton, BorderLayout.SOUTH);
-
         add(optionsPanel);
         revalidate();
         repaint();
@@ -194,16 +235,27 @@ public class Main extends JFrame {
         getContentPane().removeAll();
         JPanel authorPanel = new JPanel();
         authorPanel.setLayout(new BorderLayout());
+        authorPanel.setBackground(Color.decode("#24338a"));
 
-        JTextArea authorTextArea = new JTextArea("Jakub Kunio 189002");
-        authorTextArea.setFont(customFont.deriveFont(32f));
+        JTextArea authorTextArea = new JTextArea("Jakub Kunio 189002, Elektronika i Telekomunikacja, E2A\n" +
+                "Źródła użytych materiałów:\n" +
+                "-Muzyka menu głównego: Pixabay/Onetent\n" +
+                "-Muzyka z gry: Pixabay/SoundUniverseStudio\n" +
+                "-Tło z menu głównego: Pixabay/Lesiakower\n" +
+                "-Część obrazków jedzenia: Pixabay & itch.io\n");
         authorTextArea.setLineWrap(true);
         authorTextArea.setWrapStyleWord(true);
         authorTextArea.setEditable(false);
-        authorTextArea.setOpaque(false); // Aby tekst miał przezroczyste tło
+        authorTextArea.setOpaque(true);
+        authorTextArea.setBackground(Color.decode("#24338a"));
+        authorTextArea.setForeground(Color.WHITE);
+
+        authorTextArea.setFont(new Font("SansSerif", Font.BOLD, 22));
 
         JScrollPane scrollPane = new JScrollPane(authorTextArea);
-        scrollPane.setBorder(null); // Usunięcie obramowania
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
 
         authorPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -215,5 +267,21 @@ public class Main extends JFrame {
         add(authorPanel);
         revalidate();
         repaint();
+    }
+
+    public String getSelectedCharacter() {
+        return selectedCharacter;
+    }
+
+    public void showCharacterSelectionMenu() {
+        getContentPane().removeAll();
+        add(new CharacterSelectionPanel(this, customFont));
+        revalidate();
+        repaint();
+    }
+
+    public void setSelectedCharacter(String character) {
+        this.selectedCharacter = character;
+        mainMenu.updateCharacterPreview(); // Aktualizacja podglądu w menu głównym
     }
 }
